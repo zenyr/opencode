@@ -1304,7 +1304,7 @@ export namespace SessionPrompt {
             part.state.status !== "completed" &&
             part.state.status !== "error"
           ) {
-            if (part.state.output) {
+            if ("output" in part.state && part.state.output) {
               // If output exists, assume the tool completed successfully despite status update failure
               await Session.updatePart({
                 ...part,
