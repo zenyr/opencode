@@ -1,6 +1,16 @@
 #!/bin/sh
 set -e
 
+# This script should not be executed on Windows directly.
+# On Windows, the .cmd wrapper should be used instead.
+# If we reach here on Windows (MSYS/Cygwin), forward to .cmd wrapper.
+case "$(uname -s)" in
+    MINGW*|CYGWIN*|MSYS*)
+        dir="$(dirname "$0")"
+        exec "$dir/opencode.cmd" "$@"
+        ;;
+esac
+
 if [ -n "$OPENCODE_BIN_PATH" ]; then
     resolved="$OPENCODE_BIN_PATH"
 else
@@ -20,7 +30,6 @@ else
     case "$(uname -s)" in
         Darwin) platform="darwin" ;;
         Linux) platform="linux" ;;
-        MINGW*|CYGWIN*|MSYS*) platform="win32" ;;
         *) platform="$(uname -s | tr '[:upper:]' '[:lower:]')" ;;
     esac
     
@@ -34,7 +43,6 @@ else
     
     name="opencode-${platform}-${arch}"
     binary="opencode"
-    [ "$platform" = "win32" ] && binary="opencode.exe"
     
     # Search for the binary starting from real script location
     resolved=""

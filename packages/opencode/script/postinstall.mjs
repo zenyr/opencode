@@ -68,10 +68,88 @@ function findBinary() {
   }
 }
 
+async function createWindowsCmdWrapper() {
+  console.log("Creating Windows .cmd wrapper for opencode CLI")
+
+  const pkgPath = path.join(__dirname, "..")
+  const binDir = path.join(pkgPath, "bin")
+  const cmdFile = path.join(binDir, "opencode.cmd")
+
+  // Ensure bin directory exists
+  if (!fs.existsSync(binDir)) {
+    fs.mkdirSync(binDir, { recursive: true })
+  }
+
+  const cmdContent = `@echo off
+setlocal enabledelayedexpansion
+
+if defined OPENCODE_BIN_PATH (
+    set "resolved=%OPENCODE_BIN_PATH%"
+    goto :execute
+)
+
+rem Get the directory of this script
+set "script_dir=%~dp0"
+set "script_dir=%script_dir:~0,-1%"
+
+rem Detect platform and architecture
+set "platform=windows"
+
+rem Detect architecture
+if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+    set "arch=x64"
+) else if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
+    set "arch=arm64"
+) else if "%PROCESSOR_ARCHITECTURE%"=="x86" (
+    set "arch=x86"
+) else (
+    set "arch=x64"
+)
+
+set "name=opencode-!platform!-!arch!"
+set "binary=opencode.exe"
+
+rem Search for the binary starting from script location
+set "resolved="
+set "current_dir=%script_dir%"
+
+:search_loop
+set "candidate=%current_dir%\\node_modules\\%name%\\bin\\%binary%"
+if exist "%candidate%" (
+    set "resolved=%candidate%"
+    goto :execute
+)
+
+rem Move up one directory
+for %%i in ("%current_dir%") do set "parent_dir=%%~dpi"
+set "parent_dir=%parent_dir:~0,-1%"
+
+rem Check if we've reached the root
+if "%current_dir%"=="%parent_dir%" goto :not_found
+set "current_dir=%parent_dir%"
+goto :search_loop
+
+:not_found
+echo It seems that your package manager failed to install the right version of the opencode CLI for your platform. You can try manually installing the "%name%" package >&2
+exit /b 1
+
+:execute
+rem Execute the binary with all arguments
+"%resolved%" %*
+exit /b %ERRORLEVEL%
+`
+
+  fs.writeFileSync(cmdFile, cmdContent)
+  console.log(`Created Windows .cmd wrapper at ${cmdFile}`)
+}
+
 async function regenerateWindowsCmdWrappers() {
-  console.log("Windows + npm detected: Forcing npm to rebuild bin links")
+  console.log("Windows + npm detected: Setting up bin links")
 
   try {
+    // First, create our own .cmd wrapper
+    await createWindowsCmdWrapper()
+
     const { execSync } = require("child_process")
     const pkgPath = path.join(__dirname, "..")
 
@@ -92,7 +170,7 @@ async function regenerateWindowsCmdWrappers() {
     execSync(cmd, opts)
     console.log("Successfully rebuilt npm bin links")
   } catch (error) {
-    console.error("Error rebuilding npm links:", error.message)
+    console.error("Error during Windows setup:", error.message)
     console.error("npm rebuild failed. You may need to manually run: npm rebuild opencode-ai --ignore-scripts")
   }
 }
@@ -102,7 +180,7 @@ async function main() {
     if (os.platform() === "win32") {
       // NPM eg format - npm/11.4.2 node/v24.4.1 win32 x64
       // Bun eg format - bun/1.2.19 npm/? node/v24.3.0 win32 x64
-      if (process.env.npm_config_user_agent.startsWith("npm")) {
+      if (process.env.npm_config_user_agent?.startsWith("npm")) {
         await regenerateWindowsCmdWrappers()
       } else {
         console.log("Windows detected but not npm, skipping postinstall")
@@ -110,19 +188,23 @@ async function main() {
       return
     }
 
-    const binaryPath = findBinary()
-    const binScript = path.join(__dirname, "bin", "opencode")
+    try {
+      const binaryPath = findBinary()
+      const binScript = path.join(__dirname, "bin", "opencode")
 
-    // Remove existing bin script if it exists
-    if (fs.existsSync(binScript)) {
-      fs.unlinkSync(binScript)
+      // Remove existing bin script if it exists
+      if (fs.existsSync(binScript)) {
+        fs.unlinkSync(binScript)
+      }
+
+      // Create symlink to the actual binary
+      fs.symlinkSync(binaryPath, binScript)
+      console.log(`opencode binary symlinked: ${binScript} -> ${binaryPath}`)
+    } catch (error) {
+      console.log(`Skipping postinstall: Binary not available (${error.message}). This is normal during development.`)
     }
-
-    // Create symlink to the actual binary
-    fs.symlinkSync(binaryPath, binScript)
-    console.log(`opencode binary symlinked: ${binScript} -> ${binaryPath}`)
   } catch (error) {
-    console.error("Failed to create opencode binary symlink:", error.message)
+    console.error("Postinstall script error:", error.message)
     process.exit(1)
   }
 }

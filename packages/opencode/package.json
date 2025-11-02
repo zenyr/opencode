@@ -5,13 +5,15 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "postinstall": "node ./script/postinstall.mjs",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "build": "./script/build.ts",
     "dev": "bun run ./src/index.ts"
   },
   "bin": {
-    "opencode": "./bin/opencode"
+    "opencode": "./bin/opencode",
+    "opencode.cmd": "./bin/opencode.cmd"
   },
   "exports": {
     "./*": "./src/*.ts"
