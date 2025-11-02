@@ -49,4 +49,23 @@ describe("tool.bash", () => {
       },
     })
   })
+
+  test("output with special characters should be handled", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const result = await bash.execute(
+          {
+            command: 'echo "test with \\"quotes\\" and newlines\nline2"',
+            description: "Echo message with special characters",
+          },
+          ctx,
+        )
+        expect(result.metadata.exit).toBe(0)
+        expect(result.output).toContain("test with")
+        expect(result.output).toContain("quotes")
+        expect(result.output).toContain("newlines")
+      },
+    })
+  })
 })

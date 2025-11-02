@@ -1304,18 +1304,33 @@ export namespace SessionPrompt {
             part.state.status !== "completed" &&
             part.state.status !== "error"
           ) {
-            await Session.updatePart({
-              ...part,
-              state: {
-                ...part.state,
-                status: "error",
-                error: "Tool execution aborted",
-                time: {
-                  start: Date.now(),
-                  end: Date.now(),
+            if (part.state.output) {
+              // If output exists, assume the tool completed successfully despite status update failure
+              await Session.updatePart({
+                ...part,
+                state: {
+                  ...part.state,
+                  status: "completed",
+                  time: {
+                    start: Date.now(),
+                    end: Date.now(),
+                  },
                 },
-              },
-            })
+              })
+            } else {
+              await Session.updatePart({
+                ...part,
+                state: {
+                  ...part.state,
+                  status: "error",
+                  error: "Tool execution aborted",
+                  time: {
+                    start: Date.now(),
+                    end: Date.now(),
+                  },
+                },
+              })
+            }
           }
         }
         if (!shouldRetry) {

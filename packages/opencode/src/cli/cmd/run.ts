@@ -207,6 +207,10 @@ export const RunCommand = cmd({
 
       function outputJsonEvent(type: string, data: any) {
         if (args.format === "json") {
+          // Ensure tool output is JSON-safe to prevent parsing errors downstream
+          if (data.part && data.part.state && typeof data.part.state.output === "string") {
+            data.part.state.output = JSON.stringify(data.part.state.output)
+          }
           const jsonEvent = {
             type,
             timestamp: Date.now(),
