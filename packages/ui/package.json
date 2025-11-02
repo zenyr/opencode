@@ -11,7 +11,7 @@
     "./fonts/*": "./src/assets/fonts/*"
   },
   "scripts": {
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsc --noEmit",
     "dev": "vite",
     "generate:tailwind": "bun run script/tailwind.ts"
   },
@@ -30,7 +30,6 @@
     "@pierre/precision-diffs": "catalog:",
     "@shikijs/transformers": "3.9.2",
     "@solidjs/meta": "catalog:",
-    "@typescript/native-preview": "catalog:",
     "fuzzysort": "catalog:",
     "luxon": "catalog:",
     "marked": "16.2.0",

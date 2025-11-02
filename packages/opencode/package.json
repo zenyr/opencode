@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsc --noEmit",
     "test": "bun test",
     "build": "./script/build.ts",
     "dev": "bun run --conditions=browser ./src/index.ts",
@@ -34,11 +34,9 @@
     "@types/turndown": "5.0.5",
     "@types/yargs": "17.0.33",
     "typescript": "catalog:",
-    "@typescript/native-preview": "catalog:",
     "vscode-languageserver-types": "3.17.5",
     "why-is-node-running": "3.2.2",
-    "zod-to-json-schema": "3.24.5",
-    "@opencode-ai/script": "workspace:*"
+    "zod-to-json-schema": "3.24.5"
   },
   "dependencies": {
     "@actions/core": "1.11.1",
@@ -51,9 +49,8 @@
     "@octokit/graphql": "9.0.2",
     "@octokit/rest": "22.0.0",
     "@openauthjs/openauth": "catalog:",
-    "@opencode-ai/plugin": "workspace:*",
-    "@opencode-ai/script": "workspace:*",
-    "@opencode-ai/sdk": "workspace:*",
+    "@opencode-ai/plugin": "1.0.11",
+    "@opencode-ai/sdk": "1.0.11",
     "@opentui/core": "0.1.32",
     "@opentui/solid": "0.1.32",
     "@parcel/watcher": "2.5.1",

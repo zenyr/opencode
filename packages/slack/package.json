@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/index.ts",
-    "typecheck": "tsgo --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@opencode-ai/sdk": "workspace:*",
@@ -12,7 +12,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "@typescript/native-preview": "catalog:"
+    "typescript": "catalog:"
   }
 }

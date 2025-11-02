@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsc --noEmit",
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
@@ -16,7 +16,6 @@
     "@tsconfig/bun": "1.0.9",
     "@types/luxon": "3.7.1",
     "@types/node": "catalog:",
-    "@typescript/native-preview": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-icons-spritesheet": "3.0.1",

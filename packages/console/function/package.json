@@ -5,15 +5,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsgo --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
     "@tsconfig/node22": "22.0.2",
     "@types/node": "catalog:",
     "openai": "5.11.0",
-    "typescript": "catalog:",
-    "@typescript/native-preview": "catalog:"
+    "typescript": "catalog:"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "2.0.0",
