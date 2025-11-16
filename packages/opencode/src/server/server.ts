@@ -475,6 +475,15 @@ export namespace Server {
         async (c) => {
           const body = c.req.valid("json") ?? {}
           const session = await Session.create(body)
+
+          // Check Accept header for content negotiation
+          const accept = c.req.header("Accept") || ""
+          if (accept.includes("text/html")) {
+            // For HTML requests (browser navigation), return 406 Not Acceptable
+            // since this is an API server that only serves JSON
+            return c.text("Not Acceptable: This endpoint only serves JSON. Use the web UI for HTML responses.", 406)
+          }
+
           return c.json(session)
         },
       )
